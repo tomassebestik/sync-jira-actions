@@ -1,3 +1,25 @@
+# CHANGELOG
+
+> All notable changes to this project are documented in this file.
+> This list is not exhaustive - only important changes, fixes, and new features in the code are reflected here.
+
+<sub>The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),     [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and     [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+</sub>
+
+---
+
+## Unreleased
+
+### ✨ New features
+
+- **action**: updated this action from Docker to Composite type *(Tomas Sebestik - 74f52fd)*
+
+### 📖 Documentation
+
+- **caller-workflow**: add caller workflow for easy copy to target repo *(Tomas Sebestik - 51bc1c1)*
+
+---
+
 ## v0.1.1 (2024-02-14)
 
 
