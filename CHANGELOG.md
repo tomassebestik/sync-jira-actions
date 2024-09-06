@@ -22,20 +22,25 @@
 
 ## v0.1.1 (2024-02-14)
 
+### 📖 Documentation
 
-- docs: add CONTRIBUTING guide, update README
-- ci(project-structure): package and tools config by pyproject.toml
-- - add commitizen support to pyproject.toml
-- add Danger for GitHub
-- add pre-commit hook for codespell
-- add pre-commit hook prettier - formatting Markdown files
-- add pre-commit workflow to CI
-- refactor: refactor to Python 3.11, refactor Dockerfile (Bookworm, node20)
-- - refactor(tests): add tests and GH workflow for pytest
-- refactor: move source code to src directory
+- add CONTRIBUTING guide, update README *(Tomas Sebestik - b82419e)*
+
+### 🔧 Code refactoring
+
+- refactor to Python 3.11, refactor Dockerfile (Bookworm, node20) *(Tomas Sebestik - c26938e)*
+
+---
 
 ## v0.1.0 (2024-02-07)
 
+### ✨ New features
 
-- feat(init): original code from github-actions repo
-- Init
+- **init**: original code from github-actions repo *(Tomas Sebestik - 36ac8e0)*
+
+---
+
+**[Espressif Systems CO LTD. (2024)](https://www.espressif.com/)**
+
+- [Commitizen tools plugin with Espressif code style](https://www.github.com/espressif/cz-plugin-espressif)
+- [Espressif Coding Standards and Best Practices](https://www.github.com/espressif/standards)
