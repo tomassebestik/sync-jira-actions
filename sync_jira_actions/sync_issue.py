@@ -44,7 +44,8 @@ def handle_issue_opened(jira, event):
         return
 
     print('Creating new JIRA issue for new GitHub issue')
-    _create_jira_issue(jira, event['issue'])
+    issue = _create_jira_issue(jira, event['issue'])
+    print(f'✔️ Successfully synchronized new GitHub issue #{gh_issue["number"]} to JIRA issue {issue.key}')
 
 
 def handle_issue_edited(jira, event):
@@ -133,7 +134,8 @@ def handle_comment_created(jira, event):
     gh_comment = event['comment']
 
     jira_issue = _find_jira_issue(jira, event['issue'], True)
-    jira.add_comment(jira_issue.id, _get_jira_comment_body(gh_comment))
+    jira_comment = jira.add_comment(jira_issue.id, _get_jira_comment_body(gh_comment))
+    print(f'✔️ Successfully synchronized comment (ID: {jira_comment.id}) for JIRA issue {jira_issue.key}')
 
 
 def handle_comment_edited(jira, event):
@@ -152,15 +154,17 @@ def handle_comment_edited(jira, event):
             break
 
     if not found:  # if we didn't find the old comment, make a new comment about the edit
-        jira.add_comment(jira_issue.id, _get_jira_comment_body(gh_comment))
+        jira_comment = jira.add_comment(jira_issue.id, _get_jira_comment_body(gh_comment))
+        print(f'✔️ Successfully synchronized comment (ID: {jira_comment.id}) for JIRA issue {jira_issue.key}')
 
 
 def handle_comment_deleted(jira, event):
     gh_comment = event['comment']
     jira_issue = _find_jira_issue(jira, event['issue'], True)
-    jira.add_comment(
+    jira_comment = jira.add_comment(
         jira_issue.id, f"@{gh_comment['user']['login']} deleted [GitHub issue comment|{gh_comment['html_url']}]"
     )
+    print(f'✔️ Successfully synchronized deleted comment (ID: {jira_comment.id}) for JIRA issue {jira_issue.key}')
 
 
 # Works both for issues and pull requests
@@ -224,7 +228,7 @@ def _markdown2wiki(markdown):
                 mdf.write('\n')
 
         try:
-            subprocess.check_call(['markdown2confluence', md_path, conf_path])
+            subprocess.check_call(['npx', 'markdown2confluence', md_path, conf_path])  # noqa: S603, S607
             with open(conf_path, 'r', encoding='utf-8') as file:
                 result = file.read()
             if len(result) > 16384:  # limit any single body of text to 16KB (JIRA API limits total text to 32KB)
@@ -355,7 +359,7 @@ def _update_github_with_jira_key(gh_issue, jira_issue):
             if retries == 0:
                 raise
             print(f'GitHub edit failed: {error} ({retries} retries)')
-            time.sleep(random.randrange(1, 5))
+            time.sleep(random.randrange(1, 5))  # noqa: S311
             retries -= 1
 
 
@@ -412,12 +416,12 @@ def _get_jira_issue_type(jira, gh_issue):
     for gh_label in gh_labels:
         # Type: Feature Request label should match New Feature issue type in Jira
         if gh_label == 'Type: Feature Request':
-            print('GitHub label is \'Type: Feature Request\'. Mapping to New Feature Jira issue type')
+            print("GitHub label is 'Type: Feature Request'. Mapping to New Feature Jira issue type")
             return {'id': JIRA_NEW_FEATURE_TYPE_ID}  # JIRA API needs JSON here
         # Some projects use Label with bug icon represented by ":bug:" in label name.
         # This if matches those to Bug Jira issue type
         if gh_label == 'Type: Bug :bug:':
-            print('GitHub label is \'Type: Bug :bug:\'. Mapping to Bug Jira issue type')
+            print("GitHub label is 'Type: Bug :bug:'. Mapping to Bug Jira issue type")
             return {'id': JIRA_BUG_TYPE_ID}  # JIRA API needs JSON here
         for issue_type in issue_types:
             type_name = issue_type.name.lower()
@@ -445,7 +449,8 @@ def _find_jira_issue(jira, gh_issue, make_new=False, retries=5):
     """
     url = gh_issue['html_url']
     jql_query = f'issue in issuesWithRemoteLinksByGlobalId("{url}") order by updated desc'
-    print(f'JQL query: {jql_query}')
+    if os.environ.get('ACTIONS_RUNNER_DEBUG') == 'true':
+        print(f'JQL query: {jql_query}')  # Print the JQL query only in debug mode
     res = jira.search_issues(jql_query)
     if not res:
         print(f"WARNING: No JIRA issues have a remote link with globalID '{url}'")
@@ -484,7 +489,7 @@ def _find_jira_issue(jira, gh_issue, make_new=False, retries=5):
             # minutes for an old issue (created before the sync was installed), or an issue where the created
             # event sync failed, to sync in.
             print(f'Waiting to see if issue is created by another Action... (retries={retries})')
-            time.sleep(random.randrange(30, 60))
+            time.sleep(random.randrange(30, 60))  # noqa: S311
             return _find_jira_issue(jira, gh_issue, True, retries - 1)
 
         print('Creating missing issue in JIRA')
