@@ -25,19 +25,28 @@ inputs:
     description: 'The type of JIRA issue to be created if no labels to the issue are set. Default = "Task"'
     default: 'Task'
 
+  action:
+    description: 'Manual action type'
+    required: false
+    default: 'mirror-issues'
+
+  issue-numbers:
+    description: 'Issue numbers to sync (comma-separated)'
+    required: false # Required only for 'workflow_dispatch' trigger, handled by code logic
+
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - name: Checkout repository with action
       uses: actions/checkout@v4
       with:
         repository: tomassebestik/sync-jira-actions
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-        cache: 'pip'
+        cache: pip
 
     - name: Install Python dependencies
       shell: bash
@@ -51,7 +60,7 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
+        cache: npm
 
     - name: Install npm dependencies (markdown2confluence)
       shell: bash
