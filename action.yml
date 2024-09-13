@@ -31,7 +31,7 @@ runs:
     - name: Checkout repository with action
       uses: actions/checkout@v4
       with:
-        repository: espressif/sync-jira-actions
+        repository: tomassebestik/sync-jira-actions
         ref: v1
     
     - name: Set up Python
